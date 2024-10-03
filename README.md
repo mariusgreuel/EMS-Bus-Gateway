@@ -10,7 +10,7 @@ The assembled EMS Bus Gateway consists of three essential components:
 - A micro-controller.
 - The EMS-ESP32 firmware.
 
-The schematic uses a modified level convertor from the EMS reference schematic circulating the internet. For the micro-controller, a $5 [Seeed Studio XIAO ESP32C3](https://www.seeedstudio.com/Seeed-XIAO-ESP32C3-p-5431.html) board is used. You may also use a **Seeed Studio XIAO ESP32S3** instead. The micro-controller needs to be programmed with [EMS-ESP32](https://github.com/mariusgreuel/EMS-ESP32) firmware, which is capable of decoding the EMS bus protocol and broadcasting the EMS parameters into your network via MQTT. Finally, the assembled board may be fitted into a **Hammond 1551KGY** enclosure.
+The schematic uses a modified level convertor from the EMS reference schematic circulating the internet. For the micro-controller, a $5 [Seeed Studio XIAO ESP32C3](https://www.seeedstudio.com/Seeed-XIAO-ESP32C3-p-5431.html) board is used. The micro-controller needs to be programmed with [EMS-ESP32](https://github.com/mariusgreuel/EMS-ESP32) firmware, which is capable of decoding the EMS bus protocol and broadcasting the EMS parameters into your network via MQTT. Finally, the assembled board may be fitted into a **Hammond 1551KGY** enclosure.
 
 The assembled EMS Bus Gateway board looks like this:
 
@@ -36,12 +36,14 @@ To setup the **PlatformIO** toolchain, run the following commands in a Linux bas
 sudo apt install python3
 python3 -m venv ~/.venv/ems-esp32
 source ~/.venv/ems-esp32/bin/activate
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+python -m pip install --upgrade pip
 pip install platformio
 pip install esptool
 nvm install 18
+nvm use 18
 npm install --global yarn
-git clone https://github.com/mariusgreuel/ems-esp32.git -b xiao ~/repos/ems-esp32
+git clone https://github.com/mariusgreuel/ems-esp32.git -b xiao-3.6.5 ~/repos/ems-esp32
 ```
 
 To build the EMS-ESP32 firmware for a **XIAO ESP32C3**, run the following command:
@@ -54,16 +56,6 @@ git clean -xdf
 platformio run -e seeed_xiao_esp32c3
 ```
 
-To flash the EMS-ESP32 firmware on a **XIAO ESP32S3**, run the following command:
-
-```bash
-source ~/.venv/ems-esp32/bin/activate
-nvm use 18
-cd ~/repos/ems-esp32
-git clean -xdf
-platformio run -e seeed_xiao_esp32s3
-```
-
 After the build is completed, you will find the binaries in the `.pio\build\seeed_xiao_esp32c3` or `.pio\build\seeed_xiao_esp32s3` folder.
 
 ## Flash the EMS-ESP32 firmware
@@ -74,12 +66,6 @@ To flash the EMS-ESP32 firmware on a **XIAO ESP32C3**, run the following command
 
 ```bash
 esptool.py --chip esp32c3 --port /dev/ttyUSB0 --baud 460800 --before=default_reset --after=hard_reset write_flash 0x0 bootloader.bin 0x8000 partitions.bin 0x10000 firmware.bin
-```
-
-To flash the EMS-ESP32 firmware on a **XIAO ESP32S3**, run the following command:
-
-```bash
-esptool.py --chip esp32s3 --port /dev/ttyUSB0 --baud 460800 --before=default_reset --after=hard_reset write_flash 0x0 bootloader.bin 0x8000 partitions.bin 0x10000 firmware.bin
 ```
 
 ## Configure the EMS-ESP32 software
